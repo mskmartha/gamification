@@ -29,7 +29,7 @@ object Utils {
     fun showSuccessDialog(context: Activity, pointsResponse: PointsResponse) {
         MaterialAlertDialogBuilder(context)
             .setTitle("Points")
-            .setMessage("Points info is available. Tap on View points to view in details.")
+            .setMessage("Congratulations!! You completed handoff on time.")
             .setIcon(R.drawable.correct)
             .setNegativeButton("Cancel") { dialog, _ ->
                 // Respond to negative button press

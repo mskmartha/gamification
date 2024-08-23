@@ -61,7 +61,8 @@ class PointsActivity : ComponentActivity() {
                                 .imePadding()
                         ) {
 
-                            val state = rememberWebViewState("https://www.safeway.com/")
+                            val state =
+                                rememberWebViewState("http://sanasahallc.com/home?accruedpoints=${pointsResponse.accruedPoints.orEmpty()}")
                             //   var webViewLocal: WebView? = null
 
                             TopAppBar(

@@ -25,9 +25,25 @@ class PointsApiManager {
 
     companion object {
 
-        private var coroutineJob: Job? = null
 
-        suspend fun launchViewPoints(context: Activity, orderId: String) {
+        private var coroutineJob: Job? = null
+        private var context: Activity? = null
+
+        fun initialize(ctx: Activity) {
+            context = ctx
+        }
+
+        suspend fun launchViewPoints(orderId: String) {
+
+            if (context == null || context?.isDestroyed == true) {
+                Toast.makeText(
+                    context,
+                    "Not initialized",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return
+            }
+
             // Check if a coroutine job is already active and running
             if (coroutineJob?.isActive == true) {
                 Log.d("PointsApiManager", "An API call is already in progress.")
@@ -45,7 +61,7 @@ class PointsApiManager {
                 try {
                     Log.d("PointsApiManager", "Starting API call for orderId: $orderId")
                     // Call the API function
-                    makeApiCall(context, orderId)
+                    makeApiCall(context!!, orderId)
 
                 } catch (e: Exception) {
                     Log.e("PointsApiManager", "Error during API call: ${e.localizedMessage}", e)
@@ -58,7 +74,7 @@ class PointsApiManager {
 
         private suspend fun makeApiCall(context: Activity, orderId: String) {
             val pointsInfo = PointsViewInfo()
-            val maxRetries = 5  // Maximum number of retry attempts
+            val maxRetries = 0  // Maximum number of retry attempts
 
             try {
                 fetchPointsData(orderId)
@@ -152,6 +168,10 @@ class PointsApiManager {
 
         private fun fetchPointsData(orderId: String): Flow<Response<PointsResponse>> = flow {
             emit(RetrofitClient.apiService.getPointsData(orderId))
+        }
+
+        fun destroy() {
+            context = null
         }
 
     }

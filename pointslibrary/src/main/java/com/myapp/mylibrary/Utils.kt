@@ -1,6 +1,8 @@
 package com.myapp.mylibrary
 
 import android.app.Activity
+import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
@@ -9,7 +11,7 @@ import com.myapp.mylibrary.repository.PointsResponse
 
 object Utils {
     fun showErrorDialog(context: Activity, errorMessage: ErrorMessage, onRetry: () -> Unit) {
-        MaterialAlertDialogBuilder(context)
+        AlertDialog.Builder(context)
             .setTitle("Error")
             .setMessage(errorMessage.message)
             .setIcon(R.drawable.error)
@@ -27,7 +29,7 @@ object Utils {
     }
 
     fun showSuccessDialog(context: Activity, pointsResponse: PointsResponse) {
-        MaterialAlertDialogBuilder(context)
+        AlertDialog.Builder(context)
             .setTitle("Points")
             .setMessage("Congratulations!! You completed handoff on time.")
             .setIcon(R.drawable.correct)

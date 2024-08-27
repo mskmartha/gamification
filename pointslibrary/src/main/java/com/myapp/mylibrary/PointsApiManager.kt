@@ -74,96 +74,117 @@ class PointsApiManager {
 
         private suspend fun makeApiCall(context: Activity, orderId: String) {
             val pointsInfo = PointsViewInfo()
-            val maxRetries = 5  // Maximum number of retry attempts
+            val maxRetries = 3  // Maximum number of retry attempts
 
-            try {
-                fetchPointsData(orderId)
-                    .retryWhen { cause, attempt ->
-                        // Retry on exceptions or when the status is false
-                        if (attempt < maxRetries) {
-                            val shouldRetry =
-                                cause is IOException || cause is HttpException || cause is ResponseStatusFalseException
-                            if (shouldRetry) {
-                                Log.w(
-                                    "ApiService",
-                                    "Retry attempt $attempt due to error: ${cause.message}"
-                                )
-                                delay(10000 * (attempt + 1)) // Exponential backoff
-                                true // Retry the flow
-                            } else {
-                                false // Don't retry further
-                            }
-                        } else {
-                            false // Max retries reached
-                        }
-                    }
-                    .flowOn(Dispatchers.IO)
-                    .collect { response ->
-                        if (response.isSuccessful) {
-                            val pointsResponse = response.body()
-                            if (pointsResponse != null) {
-                                if (pointsResponse.status) {
-                                    // Successful response with true status
-                                    pointsInfo.pointsResponse = pointsResponse
-                                } else {
-                                    // Throw custom exception to trigger retry
-                                    throw ResponseStatusFalseException("Status is false. Retrying...")
-                                }
-                            } else {
-                                pointsInfo.error = ErrorMessage(
-                                    errorCode = null,
-                                    message = "No data available. The response body is empty."
-                                )
-                            }
-                        } else {
-                            // Log error with additional information
-                            Log.e(
+
+            fetchPointsData(orderId)
+                .retryWhen { cause, attempt ->
+                    // Retry on exceptions or when the status is false
+                    if (attempt < maxRetries) {
+                        val shouldRetry =
+                            cause is IOException || cause is HttpException || cause is ResponseStatusFalseException
+
+                        Log.w(
+                            "ApiService 1",
+                            "should retry $shouldRetry + ${cause is ResponseStatusFalseException}"
+                        )
+                        if (shouldRetry) {
+
+                            Log.w(
                                 "ApiService",
-                                "Failed with status code: ${response.code()} - ${response.message()}"
+                                "Retry attempt $attempt due to error: ${cause.message}"
                             )
-                            pointsInfo.error = ErrorMessage(
-                                errorCode = response.code(),
-                                message = response.message()
-                                    ?: "An error occurred while fetching the points data."
-                            )
+                            delay(10000) // Exponential backoff
+                            true // Retry the flow
+                        } else {
+                            false // Don't retry further
                         }
-                    }
-
-            } catch (e: ResponseStatusFalseException) {
-                Log.e("ApiService", "Max retries reached with false status.")
-                pointsInfo.error = ErrorMessage(
-                    errorCode = null,
-                    message = "Max retries reached without successful status."
-                )
-            } catch (e: Exception) {
-                // Handle any other exceptions
-                Log.e("ApiService", "Error fetching points data: ${e.localizedMessage}", e)
-                pointsInfo.error = ErrorMessage(
-                    errorCode = null,
-                    message = e.localizedMessage
-                        ?: "An unexpected error occurred while fetching the points data."
-                )
-            } finally {
-                // Start the PointsActivity if no error found
-                withContext(Dispatchers.Main) {
-                    if (pointsInfo.pointsResponse != null) {
-                        Utils.showSuccessDialog(context, pointsInfo.pointsResponse!!)
                     } else {
-                        // Double handled just in case
-                        Utils.showErrorDialog(
-                            context, pointsInfo.error ?: ErrorMessage(
+                        false // Max retries reached
+                    }
+                }
+                .flowOn(Dispatchers.IO)
+                .collect { response ->
+                    if (response.isSuccessful) {
+
+                        val pointsResponse = response.body()
+                        if (pointsResponse != null) {
+                            if (pointsResponse.status) {
+                                // Successful response with true status
+                                pointsInfo.pointsResponse = pointsResponse
+                                Log.w(
+                                    "ApiService sucess",
+                                    "status is true. end retry"
+                                )
+                            } else {
+                                // Throw custom exception to trigger retry
+                                Log.w(
+                                    "ApiService 1",
+                                    "status is false. retry"
+                                )
+//                                    throw ResponseStatusFalseException("Status is false. Retrying...")
+                                delay(10000)
+                                makeApiCall(context,orderId)
+                            }
+                        } else {
+                            pointsInfo.error = ErrorMessage(
                                 errorCode = null,
-                                message = "An unexpected error occurred while fetching the points data."
+                                message = "No data available. The response body is empty."
                             )
-                        ) {
-                            // user pressed retry call the API again and start the process
-                            CoroutineScope(Dispatchers.IO).launch {
-                                makeApiCall(context, orderId)
+                            // Start the PointsActivity if no error found
+                            withContext(Dispatchers.Main) {
+                                if (pointsInfo.pointsResponse != null) {
+                                    Utils.showSuccessDialog(context, pointsInfo.pointsResponse!!)
+                                } else {
+                                    // Double handled just in case
+                                    Utils.showErrorDialog(
+                                        context, pointsInfo.error ?: ErrorMessage(
+                                            errorCode = null,
+                                            message = "An unexpected error occurred while fetching the points data."
+                                        )
+                                    ) {
+                                        // user pressed retry call the API again and start the process
+                                        CoroutineScope(Dispatchers.IO).launch {
+                                            makeApiCall(context, orderId)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        // Log error with additional information
+                        Log.e(
+                            "ApiService",
+                            "Failed with status code: ${response.code()} - ${response.message()}"
+                        )
+
+                        pointsInfo.error = ErrorMessage(
+                            errorCode = response.code(),
+                            message = response.message()
+                                ?: "An error occurred while fetching the points data."
+                        )
+
+                        // Start the PointsActivity if no error found
+                        withContext(Dispatchers.Main) {
+                            if (pointsInfo.pointsResponse != null) {
+                                Utils.showSuccessDialog(context, pointsInfo.pointsResponse!!)
+                            } else {
+                                // Double handled just in case
+                                Utils.showErrorDialog(
+                                    context, pointsInfo.error ?: ErrorMessage(
+                                        errorCode = null,
+                                        message = "An unexpected error occurred while fetching the points data."
+                                    )
+                                ) {
+                                    // user pressed retry call the API again and start the process
+                                    CoroutineScope(Dispatchers.IO).launch {
+                                        makeApiCall(context, orderId)
+                                    }
+                                }
                             }
                         }
                     }
                 }
-            }
         }
 
         private fun fetchPointsData(orderId: String): Flow<Response<PointsResponse>> = flow {

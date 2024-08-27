@@ -28,6 +28,7 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+//        PointsApiManager.initialize(this@MainActivity)
         // enableEdgeToEdge()
         setContent {
 
@@ -41,7 +42,7 @@ class MainActivity : ComponentActivity() {
                     ) {
                         Button(onClick = {
                             CoroutineScope(Dispatchers.IO).launch {
-//                                PointsApiManager.launchViewPoints(this@MainActivity,"61807435")
+//                                PointsApiManager.launchViewPoints("12349000131")
                             }
 
                           //  Utils.testJsonParsing()
@@ -52,6 +53,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+//        PointsApiManager.destroy()
     }
 }
 

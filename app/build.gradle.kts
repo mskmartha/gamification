@@ -5,7 +5,8 @@ plugins {
 
 android {
     namespace = "com.myapp.samplepoc"
-    compileSdk = 34
+    compileSdk = 33
+    buildToolsVersion = "31.0.0"
 
     defaultConfig {
         applicationId = "com.myapp.samplepoc"
@@ -66,6 +67,6 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    implementation("androidx.webkit:webkit:1.8.0")
+    implementation("androidx.webkit:webkit:1.3.0")
 
 }

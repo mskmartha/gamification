@@ -74,7 +74,7 @@ class PointsApiManager {
 
         private suspend fun makeApiCall(context: Activity, orderId: String) {
             val pointsInfo = PointsViewInfo()
-            val maxRetries = 0  // Maximum number of retry attempts
+            val maxRetries = 5  // Maximum number of retry attempts
 
             try {
                 fetchPointsData(orderId)
@@ -88,7 +88,7 @@ class PointsApiManager {
                                     "ApiService",
                                     "Retry attempt $attempt due to error: ${cause.message}"
                                 )
-                                delay(1000 * (attempt + 1)) // Exponential backoff
+                                delay(10000 * (attempt + 1)) // Exponential backoff
                                 true // Retry the flow
                             } else {
                                 false // Don't retry further

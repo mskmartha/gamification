@@ -47,6 +47,11 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    project.configurations.configureEach {
+        resolutionStrategy {        force("androidx.emoji2:emoji2-views-helper:1.3.0")
+            force("androidx.emoji2:emoji2:1.3.0")
+        }
+    }
 }
 
 dependencies {
@@ -62,7 +67,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    implementation("androidx.webkit:webkit:1.11.0")
+    implementation("androidx.webkit:webkit:1.3.0")
 
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

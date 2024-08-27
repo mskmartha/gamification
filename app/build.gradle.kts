@@ -68,5 +68,6 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation("androidx.webkit:webkit:1.3.0")
+//    implementation(project(":pointslibrary"))
 
 }

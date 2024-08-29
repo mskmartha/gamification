@@ -116,6 +116,12 @@ class PointsApiManager {
                                     "ApiService sucess",
                                     "status is true. end retry"
                                 )
+
+                                withContext(Dispatchers.Main) {
+                                    if (pointsInfo.pointsResponse != null) {
+                                        Utils.showSuccessDialog(context, pointsInfo.pointsResponse!!)
+                                    }
+                                }
                             } else {
                                 // Throw custom exception to trigger retry
                                 Log.w(

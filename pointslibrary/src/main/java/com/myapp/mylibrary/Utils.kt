@@ -30,7 +30,7 @@ object Utils {
 
     fun showSuccessDialog(context: Activity, pointsResponse: PointsResponse) {
         AlertDialog.Builder(context)
-            .setTitle("Points")
+            .setTitle("${pointsResponse.accruedPoints} points earned!")
             .setMessage("Congratulations!! You completed handoff on time.")
             .setIcon(R.drawable.correct)
             .setNegativeButton("Cancel") { dialog, _ ->
